@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>❤我的日常主页❤</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            background-color: #fff5f7;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .card {
+            background-color: #fff;
+            border: 1px solid #ffe4e9;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(255, 182, 193, 0.1);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(255, 182, 193, 0.2);
+            transform: translateY(-2px);
+        }
+        .tab-active {
+            color: #ff69b4;
+            border-bottom: 2px solid #ff69b4;
+        }
+        .heart {
+            position: absolute;
+            color: #ffb6c1;
+            font-size: 20px;
+            opacity: 0.6;
+            z-index: 0;
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+        .profile-bg {
+            background: linear-gradient(135deg, #fff 0%, #ffe4e9 100%);
+        }
+        .btn-pink {
+            background-color: #ff69b4;
+            color: white;
+        }
+        .btn-pink:hover {
+            background-color: #ff1493;
+        }
+        .text-pink {
+            color: #ff69b4;
+        }
+        .border-pink {
+            border-color: #ffb6c1;
+        }
+        .comment-section {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        .comment-section.active {
+            max-height: 500px;
+        }
+        .comment {
+            border-left: 3px solid #ffb6c1;
+            padding-left: 10px;
+            margin: 10px 0;
+        }
+        .user-avatar {
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background-color: #f9f9f9;
+            border-radius: 50%;
+        }
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+        .author-badge {
+            background-color: #ff69b4;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-left: 5px;
+        }
+        .reply-comment {
+            margin-left: 20px;
+            border-left: 2px solid #ffb6c1;
+            padding-left: 10px;
+            background-color: #fff9fb;
+            border-radius: 0 8px 8px 0;
+        }
+        .reply-btn {
+            font-size: 12px;
+            color: #ff69b4;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .reply-btn:hover {
+            text-decoration: underline;
+        }
+        
+        /* 密码模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            color: #ff69b4;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ffb6c1;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .confirm-btn {
+            background-color: #ff69b4;
+            color: white;
+        }
+        
+        .confirm-btn:hover {
+            background-color: #ff1493;
+        }
+        
+        .cancel-btn {
+            background-color: #f0f0f0;
+            color: #666;
+        }
+        
+        .cancel-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .error-message {
+            color: #ff4757;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .deleted-album {
+            background-color: #f8f9fa;
+            border-color: #e9ecef;
+        }
+        
+        .deleted-album:hover {
+            background-color: #e9ecef;
+        }
+        
+        /* 头像emoji样式 */
+        .avatar-emoji {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background-color: #f9f9f9;
+            border-radius: 50%;
+        }
+        .avatar-emoji.small {
+            font-size: 1rem;
+        }
+        .avatar-emoji.large {
+            font-size: 2rem;
+        }
+        .profile-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            background-color: #fff;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <!-- 爱心装饰 -->
+    <div class="heart" style="top: 10%; left: 5%;">❤</div>
+    <div class="heart" style="top: 20%; right: 8%;">❤</div>
+    <div class="heart" style="top: 60%; left: 7%;">❤</div>
+    <div class="heart" style="top: 40%; right: 5%;">❤</div>
+    <div class="heart" style="bottom: 20%; left: 10%;">❤</div>
+    <div class="heart" style="bottom: 10%; right: 12%;">❤</div>
+    
+    <div class="max-w-4xl mx-auto relative z-10">
+        <!-- 个人信息区域 -->
+        <div class="card p-6 md:p-8 mb-6 flex flex-col items-center profile-bg">
+            <!-- 头像 -->
+            <div class="relative mb-4">
+                <div class="profile-avatar w-28 h-28 md:w-36 md:h-36">
+                    🍬
+                </div>
+                <div class="absolute -bottom-2 -right-2 bg-pink-500 text-white p-1 rounded-full">
+                    <i class="fa fa-heart text-xs"></i>
+                </div>
+            </div>
+            <!-- 姓名 -->
+            <h1 class="text-2xl md:text-3xl font-bold text-pink mb-2">草莓味的</h1>
+            <!-- 个人简介 -->
+            <p class="text-gray-600 text-center max-w-xl">
+                记录和男朋友的每一天✨ 分享恋爱里的甜与暖，把平凡日子过成诗～
+            </p>
+            <!-- 社交链接 -->
+            <div class="flex space-x-4 mt-4">
+                <a href="#" class="text-pink hover:text-pink-700">
+                    <i class="fa fa-weixin text-xl"></i>
+                </a>
+                <a href="#" class="text-pink hover:text-pink-700">
+                    <i class="fa fa-weibo text-xl"></i>
+                </a>
+                <a href="#" class="text-pink hover:text-pink-700">
+                    <i class="fa fa-instagram text-xl"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- 内容切换区域 -->
+        <div class="mb-6">
+            <div class="flex border-b border-pink">
+                <button id="tab-talk" class="tab-active py-3 px-6 font-medium text-lg focus:outline-none" onclick="switchTab('talk')">
+                    <i class="fa fa-comment-o mr-2"></i>说说
+                </button>
+                <button id="tab-album" class="py-3 px-6 font-medium text-lg text-gray-500 focus:outline-none" onclick="switchTab('album')">
+                    <i class="fa fa-picture-o mr-2"></i>相册
+                </button>
+            </div>
+        </div>
+
+        <!-- 说说内容区 -->
+        <div id="content-talk" class="block">
+            <div class="space-y-4">
+                <!-- 说说1 -->
+                <div class="card p-6" id="post-1">
+                    <div class="flex items-start mb-3">
+                        <div class="avatar-emoji w-10 h-10 rounded-full mr-3 user-avatar" onclick="viewUserProfile('user1')">
+                            🍬
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">草莓味的</h3>
+                            <p class="text-gray-500 text-sm">今天 18:30</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-3">和男朋友去吃了超爱的日料～ 他记得我不吃生鱼片，特意给我点了全熟的寿司🍣 被人放在心上的感觉真好呀</p>
+                    <img src="https://picsum.photos/id/292/600/400" alt="日料照片" class="w-full h-48 md:h-64 object-cover rounded-lg mb-3">
+                    <div class="flex items-center text-gray-500">
+                        <button class="flex items-center mr-6 hover:text-pink transition-colors">
+                            <i class="fa fa-heart-o mr-1"></i> 28
+                        </button>
+                        <button class="flex items-center hover:text-pink transition-colors comment-toggle" data-post="1">
+                            <i class="fa fa-comment-o mr-1"></i> 6
+                        </button>
+                    </div>
+                    
+                    <!-- 评论区域 -->
+                    <div class="comment-section mt-4" id="comments-1">
+                        <!-- 评论1 -->
+                        <div class="comment">
+                            <div class="flex items-start mb-2">
+                                <div class="avatar-emoji w-8 h-8 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user2')">
+                                    😋
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">狂炫三碗</h4>
+                                    <p class="text-gray-600 text-sm">秀秀秀，你就可劲秀吧[○･｀Д´･ ○]</p>
+                                </div>
+                            </div>
+                            <!-- 草莓味的的回复 -->
+                            <div class="reply-comment mt-2">
+                                <div class="flex items-start mb-1">
+                                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user1')">
+                                        🍬
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">草莓味的 <span class="author-badge">作者</span></h4>
+                                        <p class="text-gray-600 text-sm">嘿嘿，下次一起来吃！这家的寿司巨赞！💕</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 评论2 -->
+                        <div class="comment">
+                            <div class="flex items-start mb-2">
+                                <div class="avatar-emoji w-8 h-8 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user3')">
+                                    💩
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">侍</h4>
+                                    <p class="text-gray-600 text-sm">这家日料看起来不错，求推荐！</p>
+                                </div>
+                            </div>
+                            <!-- 草莓味的的回复 -->
+                            <div class="reply-comment mt-2">
+                                <div class="flex items-start mb-1">
+                                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user1')">
+                                        🍬
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">草莓味的 <span class="author-badge">作者</span></h4>
+                                        <p class="text-gray-600 text-sm">在市中心的那家@樱之味，强烈推荐他们家的烤鳗鱼！</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 评论3 -->
+                        <div class="comment">
+                            <div class="flex items-start mb-2">
+                                <div class="avatar-emoji w-8 h-8 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user4')">
+                                    ☔️
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">伞下睡觉</h4>
+                                    <p class="text-gray-600 text-sm">好幸福呀！要一直这么甜下去哦～</p>
+                                </div>
+                            </div>
+                            <!-- 草莓味的的回复 -->
+                            <div class="reply-comment mt-2">
+                                <div class="flex items-start mb-1">
+                                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user1')">
+                                        🍬
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">草莓味的 <span class="author-badge">作者</span></h4>
+                                        <p class="text-gray-600 text-sm">💖💖</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 添加评论框 -->
+                        <div class="flex mt-4">
+                            <input type="text" placeholder="添加评论..." class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300">
+                            <button class="bg-pink-500 text-white px-4 rounded-r-lg hover:bg-pink-600 transition-colors">发送</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 说说2 -->
+                <div class="card p-6" id="post-2">
+                    <div class="flex items-start mb-3">
+                        <div class="avatar-emoji w-10 h-10 rounded-full mr-3 user-avatar" onclick="viewUserProfile('user1')">
+                            🍬
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">草莓味的</h3>
+                            <p class="text-gray-500 text-sm">昨天 20:15</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-3">饭后散步遇到的晚霞🌇 男朋友非要给我拍100张照片，最后选了这张最喜欢的～ 有他在，连晚霞都更浪漫了</p>
+                    <img src="https://picsum.photos/id/164/600/400" alt="晚霞照片" class="w-full h-48 md:h-64 object-cover rounded-lg mb-3">
+                    <div class="flex items-center text-gray-500">
+                        <button class="flex items-center mr-6 hover:text-pink transition-colors">
+                            <i class="fa fa-heart-o mr-1"></i> 42
+                        </button>
+                        <button class="flex items-center hover:text-pink transition-colors comment-toggle" data-post="2">
+                            <i class="fa fa-comment-o mr-1"></i> 6
+                        </button>
+                    </div>
+                    
+                    <!-- 评论区域 -->
+                    <div class="comment-section mt-4" id="comments-2">
+                        <!-- 评论1 -->
+                        <div class="comment">
+                            <div class="flex items-start mb-2">
+                                <div class="avatar-emoji w-8 h-8 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user3')">
+                                    💩
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">侍</h4>
+                                    <p class="text-gray-600 text-sm">这晚霞也太美了！拍照技术不错呀</p>
+                                </div>
+                            </div>
+                            <!-- 草莓味的的回复 -->
+                            <div class="reply-comment mt-2">
+                                <div class="flex items-start mb-1">
+                                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user1')">
+                                        🍬
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">草莓味的 <span class="author-badge">作者</span></h4>
+                                        <p class="text-gray-600 text-sm">是他拍得好啦，我只会比个剪刀手✌️</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 评论2 -->
+                        <div class="comment">
+                            <div class="flex items-start mb-2">
+                                <div class="avatar-emoji w-8 h-8 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user2')">
+                                    😋
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">狂炫三碗</h4>
+                                    <p class="text-gray-600 text-sm">好浪漫！我酸了🍋</p>
+                                </div>
+                            </div>
+                            <!-- 草莓味的的回复 -->
+                            <div class="reply-comment mt-2">
+                                <div class="flex items-start mb-1">
+                                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user1')">
+                                        🍬
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">草莓味的 <span class="author-badge">作者</span></h4>
+                                        <p class="text-gray-600 text-sm">别酸啦，你的Mr.Right也在路上啦！💫</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 评论3 -->
+                        <div class="comment">
+                            <div class="flex items-start mb-2">
+                                <div class="avatar-emoji w-8 h-8 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user4')">
+                                    ☔️
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">伞下睡觉</h4>
+                                    <p class="text-gray-600 text-sm">这是什么神仙爱情！太羡慕了</p>
+                                </div>
+                            </div>
+                            <!-- 草莓味的的回复 -->
+                            <div class="reply-comment mt-2">
+                                <div class="flex items-start mb-1">
+                                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user1')">
+                                        🍬
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">草莓味的 <span class="author-badge">作者</span></h4>
+                                        <p class="text-gray-600 text-sm">嘻嘻，希望每个人都能遇到自己的神仙爱情呀！✨</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 添加评论框 -->
+                        <div class="flex mt-4">
+                            <input type="text" placeholder="添加评论..." class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300">
+                            <button class="bg-pink-500 text-white px-4 rounded-r-lg hover:bg-pink-600 transition-colors">发送</button>
+                        </div>
+                    </div>
+                </div>
+
+<!-- 说说3 -->
+<div class="card p-6" id="post-3">
+    <div class="flex items-start mb-3">
+        <div class="avatar-emoji w-10 h-10 rounded-full mr-3 user-avatar" onclick="viewUserProfile('user1')">
+            🍬
+        </div>
+        <div>
+            <h3 class="font-semibold text-gray-800">草莓味的</h3>
+            <p class="text-gray-500 text-sm">3天前</p>
+        </div>
+    </div>
+    <p class="text-gray-700 mb-3">感冒了好难受😷 男朋友下班特意绕路给我买了红糖姜茶和感冒药，还煮了粥～ 被照顾的感觉太幸福啦，快点好起来才能和他去玩呀</p>
+    <div class="flex items-center text-gray-500">
+        <button class="flex items-center mr-6 hover:text-pink transition-colors">
+            <i class="fa fa-heart-o mr-1"></i> 35
+        </button>
+        <button class="flex items-center hover:text-pink transition-colors comment-toggle" data-post="3">
+            <i class="fa fa-comment-o mr-1"></i> 8
+        </button>
+    </div>
+    
+    <!-- 评论区域 -->
+    <div class="comment-section mt-4" id="comments-3">
+        <!-- 评论1 -->
+        <div class="comment">
+            <div class="flex items-start mb-2">
+                <div class="avatar-emoji w-8 h-8 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user4')">
+                    ☔️
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-800">伞下睡觉</h4>
+                    <p class="text-gray-600 text-sm">早日康复呀！这样的男朋友也太贴心了</p>
+                </div>
+            </div>
+            <!-- 草莓味的的回复 -->
+            <div class="reply-comment mt-2">
+                <div class="flex items-start mb-1">
+                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user1')">
+                        🍬
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">草莓味的 <span class="author-badge">作者</span></h4>
+                        <p class="text-gray-600 text-sm">谢谢伞下睡觉！我已经好多啦～</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 评论2 -->
+        <div class="comment">
+            <div class="flex items-start mb-2">
+                <div class="avatar-emoji w-8 h-8 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user2')">
+                    😋
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-800">狂炫三碗</h4>
+                    <p class="text-gray-600 text-sm">呵呵，要不是这一次生病，我都不知道你有一个已经谈了三个月的对象🙄💅</p>
+                </div>
+            </div>
+            <!-- 草莓味的的回复 -->
+            <div class="reply-comment mt-2">
+                <div class="flex items-start mb-1">
+                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user1')">
+                        🍬
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">草莓味的 <span class="author-badge">作者</span></h4>
+                        <p class="text-gray-600 text-sm">你是不是又给算错了，下周才一百天啦~💕</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 狂炫三碗的再次回复 -->
+            <div class="reply-comment mt-2 ml-4">
+                <div class="flex items-start mb-1">
+                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user2')">
+                        😋
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">狂炫三碗</h4>
+                        <p class="text-gray-600 text-sm">问你这个了吗💢</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 草莓味的的再次回复 -->
+            <div class="reply-comment mt-2 ml-8">
+                <div class="flex items-start mb-1">
+                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user1')">
+                        🍬
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">草莓味的 <span class="author-badge">作者</span></h4>
+                        <p class="text-gray-600 text-sm">对不起啦，请你吃大餐！🍽️</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 评论3 - 绿鱼头星人 -->
+        <div class="comment">
+            <div class="flex items-start mb-2">
+                <div class="avatar-emoji w-8 h-8 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user5')">
+                    🐸
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-800">绿鱼头星人</h4>
+                    <p class="text-gray-600 text-sm">生病还偷玩手机，被我抓到了吧!还不赶快好好休息！</p>
+                </div>
+            </div>
+            <!-- 绿鱼头星人的再次回复 -->
+            <div class="reply-comment mt-2">
+                <div class="flex items-start mb-1">
+                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user5')">
+                        🐸
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-800">绿鱼头星人</h4>
+                        <p class="text-gray-600 text-sm">装死？行！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 添加评论框 -->
+        <div class="flex mt-4">
+            <input type="text" placeholder="添加评论..." class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300">
+            <button class="bg-pink-500 text-white px-4 rounded-r-lg hover:bg-pink-600 transition-colors">发送</button>
+        </div>
+    </div>
+</div>
+
+                <!-- 说说4 -->
+                <div class="card p-6" id="post-4">
+                    <div class="flex items-start mb-3">
+                        <div class="avatar-emoji w-10 h-10 rounded-full mr-3 user-avatar" onclick="viewUserProfile('user1')">
+                            🍬
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">草莓味的</h3>
+                            <p class="text-gray-500 text-sm">08-02</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-3">我不需要你，你给不了我爱了。</p>
+                    <div class="flex items-center text-gray-500">
+                        <button class="flex items-center mr-6 hover:text-pink transition-colors">
+                            <i class="fa fa-heart-o mr-1"></i> 1
+                        </button>
+                        <button class="flex items-center hover:text-pink transition-colors comment-toggle" data-post="4">
+                            <i class="fa fa-comment-o mr-1"></i> 2
+                        </button>
+                    </div>
+                    
+                    <!-- 评论区域 -->
+                    <div class="comment-section mt-4" id="comments-4">     
+                        <!-- 评论1 -->
+                        <div class="comment">
+                            <div class="flex items-start mb-2">
+                                <div class="avatar-emoji w-8 h-8 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user5')">
+                                    🐸
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">绿鱼头星人</h4>
+                                    <p class="text-gray-600 text-sm">上号。</p>
+                                </div>
+                            </div>
+                            <!-- 草莓味的的回复 -->
+                            <div class="reply-comment mt-2">
+                                <div class="flex items-start mb-1">
+                                    <div class="avatar-emoji small w-6 h-6 rounded-full mr-2 user-avatar" onclick="viewUserProfile('user1')">
+                                        🍬
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">草莓味的 <span class="author-badge">作者</span></h4>
+                                        <p class="text-gray-600 text-sm">我不是这个意思……算了，拉我。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                                             
+                        <!-- 添加评论框 -->
+                        <div class="flex mt-4">
+                            <input type="text" placeholder="添加评论..." class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300">
+                            <button class="bg-pink-500 text-white px-4 rounded-r-lg hover:bg-pink-600 transition-colors">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 相册内容区 -->
+        <div id="content-album" class="hidden">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-pink mb-4">我们的美好回忆</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- 相册图片 -->
+                    <div class="card overflow-hidden">
+                        <img src="https://picsum.photos/id/292/400/400" alt="情侣照片" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <div class="card overflow-hidden">
+                        <img src="https://picsum.photos/id/164/400/400" alt="情侣照片" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <div class="card overflow-hidden">
+                        <img src="https://picsum.photos/id/325/400/400" alt="情侣照片" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <div class="card overflow-hidden">
+                        <img src="https://picsum.photos/id/433/400/400" alt="情侣照片" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <div class="card overflow-hidden">
+                        <img src="https://picsum.photos/id/542/400/400" alt="情侣照片" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <div class="card overflow-hidden">
+                        <img src="https://picsum.photos/id/628/400/400" alt="情侣照片" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h2 class="text-xl font-bold text-pink mb-4">相册分类</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="card p-4 flex items-center hover:bg-pink-50 transition-colors">
+                        <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mr-4">
+                            <i class="fa fa-heart text-pink"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">纪念日合集</h3>
+                            <p class="text-sm text-gray-500">12个相册</p>
+                        </div>
+                    </div>
+                    <div class="card p-4 flex items-center hover:bg-pink-50 transition-colors">
+                        <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mr-4">
+                            <i class="fa fa-cutlery text-pink"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">美食日记</h3>
+                            <p class="text-sm text-gray-500">8个相册</p>
+                        </div>
+                    </div>
+                    <div class="card p-4 flex items-center hover:bg-pink-50 transition-colors">
+                        <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mr-4">
+                            <i class="fa fa-plane text-pink"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">旅行足迹</h3>
+                            <p class="text-sm text-gray-500">5个相册</p>
+                        </div>
+                    </div>
+                    <div class="card p-4 flex items-center hover:bg-pink-50 transition-colors">
+                        <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center mr-4">
+                            <i class="fa fa-gift text-pink"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold">礼物时刻</h3>
+                            <p class="text-sm text-gray-500">7个相册</p>
+                        </div>
+                    </div>
+                    <!-- 已删除合集 -->
+                    <div class="card p-4 flex items-center hover:bg-gray-100 transition-colors deleted-album" id="deleted-album">
+                        <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+                            <i class="fa fa-lock text-gray-500"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-500">已删除合集</h3>
+                            <p class="text-sm text-gray-400">加密相册</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 密码输入模态框 -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <h2 class="modal-title">请输入密码</h2>
+            <p class="text-gray-600 text-center mb-4">此相册已加密，请输入密码查看</p>
+            <input type="password" class="password-input" id="passwordInput" placeholder="输入密码...">
+            <p class="error-message" id="errorMessage">错误，请重试</p>
+            <div class="modal-buttons">
+                <button class="modal-btn confirm-btn" id="confirmPassword">确认</button>
+                <button class="modal-btn cancel-btn" id="cancelPassword">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换标签页功能
+        function switchTab(tabName) {
+            // 隐藏所有内容
+            document.getElementById('content-talk').classList.add('hidden');
+            document.getElementById('content-album').classList.add('hidden');
+            // 移除所有标签的激活状态
+            document.getElementById('tab-talk').classList.remove('tab-active');
+            document.getElementById('tab-album').classList.remove('tab-active');
+            document.getElementById('tab-talk').classList.add('text-gray-500');
+            document.getElementById('tab-album').classList.add('text-gray-500');
+            
+            // 显示选中的内容和激活标签
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            document.getElementById('tab-' + tabName).classList.add('tab-active');
+            document.getElementById('tab-' + tabName).classList.remove('text-gray-500');
+        }
+
+        // 图片预览功能（点击相册图片放大）
+        document.querySelectorAll('#content-album img').forEach(img => {
+            img.addEventListener('click', function() {
+                const preview = document.createElement('div');
+                preview.style.position = 'fixed';
+                preview.style.top = '0';
+                preview.style.left = '0';
+                preview.style.width = '100%';
+                preview.style.height = '100%';
+                preview.style.backgroundColor = 'rgba(0,0,0,0.9)';
+                preview.style.display = 'flex';
+                preview.style.alignItems = 'center';
+                preview.style.justifyContent = 'center';
+                preview.style.zIndex = '9999';
+                
+                const previewImg = document.createElement('img');
+                previewImg.src = this.src;
+                previewImg.style.maxWidth = '90%';
+                previewImg.style.maxHeight = '90%';
+                previewImg.style.border = '4px solid white';
+                previewImg.style.borderRadius = '8px';
+                
+                preview.appendChild(previewImg);
+                document.body.appendChild(preview);
+                
+                preview.addEventListener('click', function() {
+                    document.body.removeChild(preview);
+                });
+            });
+        });
+        
+        // 添加更多随机爱心
+        function createHearts() {
+            const container = document.body;
+            for (let i = 0; i < 10; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.top = Math.random() * 100 + '%';
+                heart.style.fontSize = (Math.random() * 15 + 10) + 'px';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(heart);
+            }
+        }
+        
+        // 页面加载后创建爱心
+        window.addEventListener('load', createHearts);
+        
+        // 评论展开/收起功能
+        document.querySelectorAll('.comment-toggle').forEach(button => {
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post');
+                const commentSection = document.getElementById('comments-' + postId);
+                commentSection.classList.toggle('active');
+            });
+        });
+        
+        // 查看用户主页功能
+        function viewUserProfile(userId) {
+            // 在实际应用中，这里应该跳转到用户主页
+            // 这里我们使用模拟数据展示
+            alert('跳转到用户 ' + userId + ' 的主页');
+            // window.location.href = '/user/' + userId;
+        }
+
+        // 已删除合集密码验证功能
+        document.getElementById('deleted-album').addEventListener('click', function() {
+            document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('errorMessage').style.display = 'none';
+        });
+
+        document.getElementById('cancelPassword').addEventListener('click', function() {
+            document.getElementById('passwordModal').style.display = 'none';
+        });
+
+        document.getElementById('confirmPassword').addEventListener('click', function() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === '13.32') {
+                // 密码正确，跳转到已删除相册页面
+                alert('密码正确！跳转中...');
+                // 这里可以添加实际跳转代码
+                // window.location.href = 'deleted-albums.html';
+                document.getElementById('passwordModal').style.display = 'none';
+            } else {
+                // 密码错误，显示错误提示
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+
+        // 点击模态框外部关闭
+        document.getElementById('passwordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+
+        // 按Enter键确认密码
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('confirmPassword').click();
+            }
+        });
+    </script>
+</body>
+</html>
